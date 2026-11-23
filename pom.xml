@@ -8,7 +8,9 @@
 		<version>1.9.0</version>
 	</parent>
 
-	<groupId>8d624bf1-5cd5-455e-94ea-6f2ba716a0ed</groupId>
+	<!-- Exchange takes the asset only under the org's ID: the publish of a tag sets it in its checkout
+	(azure-devops-mulesoft-reusable-templates, scripts/bash/library-publish.sh). Never edited by hand. -->
+	<groupId>com.brunosouzas.mulesoft</groupId>
 	<artifactId>api-error-handler</artifactId>
 	<version>1.1.0-SNAPSHOT</version>
 	<packaging>mule-extension</packaging>
@@ -17,7 +19,7 @@
 	<description>Provides standard REST API error responses</description>
 
 	<properties>
-		<scm.connection>scm:git:git@github.com:brunosouzas/mulesoft-error-handler-plugin.git</scm.connection>
+		<scm.connection>scm:git:https://github.com/brunosouzas/mulesoft-error-handler-plugin.git</scm.connection>
 		<scm.developerConnection>${scm.connection}</scm.developerConnection>
 		<scm.url>https://github.com/brunosouzas/mulesoft-error-handler-plugin</scm.url>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,7 +27,6 @@
 		<!-- mule.version is mandatory for mule-extension projects and must be hardcoded -->
 		<mule.version>4.9.1</mule.version>
 		<mule.extensions.maven.plugin.version>1.9.0</mule.extensions.maven.plugin.version>
-		<exchange.mule.maven.plugin.version>0.0.23</exchange.mule.maven.plugin.version>
 		<maven.release.plugin.version>3.3.1</maven.release.plugin.version>
 		<mule.app.classifier>mule-plugin</mule.app.classifier>
 		<java.version>17</java.version>
@@ -64,49 +65,21 @@
 				<version>${mule.extensions.maven.plugin.version}</version>
 				<extensions>true</extensions>
 			</plugin>
-			<plugin>
-				<groupId>org.mule.tools.maven</groupId>
-				<artifactId>exchange-mule-maven-plugin</artifactId>
-				<version>${exchange.mule.maven.plugin.version}</version>
-				<executions>
-					<execution>
-						<id>validate</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>exchange-pre-deploy</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>deploy</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>exchange-deploy</goal>
-						</goals>
-					</execution>
-				</executions>
-				<inherited>false</inherited>
-			</plugin>
+			<!-- A merge into main runs release:prepare as the release App (the templates' mulesoft-library.yml).
+			[skip ci] keeps its two commits from starting a run. -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
 				<version>${maven.release.plugin.version}</version>
+				<configuration>
+					<tagNameFormat>v@{project.version}</tagNameFormat>
+					<scmCommentPrefix>[skip ci] [maven-release-plugin] </scmCommentPrefix>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
 
 	<repositories>
-		<repository>
-			<id>anypoint-exchange-v3</id>
-			<name>Anypoint Exchange V3</name>
-			<url>https://maven.anypoint.mulesoft.com/api/v3/organizations/${project.groupId}/maven</url>
-			<layout>default</layout>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
 		<repository>
 			<id>mule-releases</id>
 			<name>MuleSoft Releases Repository</name>
